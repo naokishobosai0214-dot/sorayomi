@@ -98,6 +98,10 @@ def build():
     Image.open(os.path.join(SITE, "latest.jpg")).save(os.path.join(SITE, "latest.png"), optimize=True)
     save_pdf(os.path.join(SITE, "latest.jpg"), os.path.join(SITE, "latest.pdf"))
     x_post.make_image(charts, os.path.join(SITE, "x_post.jpg"), cta="x")
+    # X 投稿用の4枚セット(x_bot.py が x_set/1.jpg〜4.jpg を取りに来る)
+    os.makedirs(os.path.join(SITE, "x_set"))
+    for i, p in enumerate(x_post.make_set(charts, os.path.join(work, "x_set")), 1):
+        shutil.copy(p, os.path.join(SITE, "x_set", f"{i}.jpg"))
     line_samples()
     items = []
     for title, when, png in charts:

@@ -1,0 +1,59 @@
+# 空読みの X 自動投稿(x_bot.py)。朝 7:00・7:30・8:00 と夕方 17:00・17:30・18:00(日本時間)に呼ばれ、
+# 予定の図が公開済みなら1回だけ投稿する。毎朝 9:30 に数字を記録する。
+# 投稿済みの一覧と数字は bot-state ブランチ(posted.json・metrics.csv)に残す。
+name: x_bot
+
+on:
+  schedule:
+    - cron: "0,30 22 * * *"   # 7:00・7:30 JST
+    - cron: "0 23 * * *"      # 8:00 JST
+    - cron: "0,30 8 * * *"    # 17:00・17:30 JST
+    - cron: "0 9 * * *"       # 18:00 JST
+    - cron: "30 0 * * *"      # 9:30 JST 数字の記録
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "post / metrics / dry(投稿せずに中身を表示)"
+        default: dry
+
+permissions:
+  contents: write
+
+concurrency:
+  group: x_bot
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      X_API_KEY: ${{ secrets.X_API_KEY }}
+      X_API_SECRET: ${{ secrets.X_API_SECRET }}
+      X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+      X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 投稿済みの一覧を取ってくる
+        run: |
+          if git fetch -q origin bot-state; then git worktree add -B bot-state state origin/bot-state
+          else git worktree add --orphan -b bot-state state; fi
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests requests-oauthlib
+      - name: 実行する
+        run: |
+          MODE="${{ inputs.mode }}"
+          if [ -z "$MODE" ]; then
+            if [ "${{ github.event.schedule }}" = "30 0 * * *" ]; then MODE=metrics; else MODE=post; fi
+          fi
+          if [ "$MODE" = dry ]; then X_DRY_RUN=1 python x_bot.py post; else python x_bot.py "$MODE"; fi
+      - name: 投稿済みの一覧を残す
+        run: |
+          cd state
+          git config user.name "x_bot"
+          git config user.email "x_bot@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -qm "x_bot $(date -u +%F_%H%M)"
+          git push -q origin bot-state

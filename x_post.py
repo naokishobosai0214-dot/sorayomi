@@ -162,6 +162,51 @@ def make_image(charts, path, cta="x", url=""):
     return latest
 
 
+SET_W = 1600                     # 4枚セットの1枚の幅。スマホで画像を開いたとき画面の幅いっぱいに出る
+
+
+def set_page(charts, idx, head, page, stamp):
+    """4枚セットの2〜4枚目。charts[idx] の図を縦に積む(スマホの縦画面で開いたとき1枚ずつ大きく見える)。"""
+    bar, cap, foot = 110, 56, 56
+    ch = round(SET_W / RATIO)
+    img = Image.new("RGB", (SET_W, bar + (cap + ch) * len(idx) + foot), "white")
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, SET_W, bar], fill=NAVY)
+    d.text((PAD, bar // 2), head, font=font(46), fill="white", anchor="lm")
+    d.text((SET_W - PAD, bar // 2), f"{page}/4", font=font(34, False), fill=(200, 215, 240), anchor="rm")
+    y = bar
+    for i in idx:
+        title, when, png = charts[i]
+        now = "最新" in title
+        when = re.sub(r"\s*\(.*?\)", "", when).replace("初期値", "/ 初期値")
+        d.rectangle([0, y, SET_W, y + cap], fill=RED if now else GRAY)
+        d.text((PAD, y + cap // 2), title.replace("時間予想", "h予想"), font=font(32), fill="white" if now else NAVY, anchor="lm")
+        d.text((SET_W - PAD, y + cap // 2), when, font=font(28, False), fill="white" if now else (40, 40, 40), anchor="rm")
+        chart = Image.open(os.path.join(asas_view.OUT, png)).convert("RGB")
+        img.paste(chart.resize((SET_W, ch), Image.LANCZOS), (0, y + cap))
+        y += cap + ch
+    d.text((PAD, y + foot // 2), f"出典：気象庁ホームページ（地上天気図）を加工して作成（{EDITOR}）",
+           font=font(24, False), fill=(60, 60, 60), anchor="lm")
+    d.text((SET_W - PAD, y + foot // 2), stamp, font=font(24, False), fill=NAVY, anchor="rm")
+    return img
+
+
+def make_set(charts, folder):
+    """X 投稿用の4枚セット。1=5枚まとめ(表紙) 2=過去の実況(48h前・24h前) 3=最新の実況 4=予想(24h・48h)。"""
+    os.makedirs(folder, exist_ok=True)
+    paths = [os.path.join(folder, "1_まとめ.jpg")]
+    latest = make_image(charts, paths[0])
+    j = latest + timedelta(hours=9)
+    stamp = f"最新 {j.month}月{j.day}日{j.hour}時({latest:%H}UTC)"
+    for page, (idx, head, name) in enumerate((((0, 1), "過去の実況　48時間前・24時間前", "2_過去"),
+                                              ((2,), "最新の実況（数値予報の初期値）", "3_最新"),
+                                              ((3, 4), "予想　24時間後・48時間後", "4_予想")), 2):
+        p = os.path.join(folder, f"{name}.jpg")
+        set_page(charts, idx, head, page, stamp).save(p, quality=90)
+        paths.append(p)
+    return paths
+
+
 def main():
     charts = asas_view.fetch_charts()
     latest = next(utc_of(p) for a, _, p in charts if "最新" in a)
@@ -169,7 +214,10 @@ def main():
     path = os.path.join(OUT_DIR, f"x_post_{latest:%Y%m%d%H}.jpg")
     make_image(charts, path)
     print(path, round(os.path.getsize(path) / 1024), "KB")
-    return path
+    folder = os.path.join(OUT_DIR, f"x_set_{latest:%Y%m%d%H}")
+    for p in make_set(charts, folder):
+        print(p, round(os.path.getsize(p) / 1024), "KB")
+    return folder
 
 
 if __name__ == "__main__":
