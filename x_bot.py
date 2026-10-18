@@ -2,9 +2,11 @@
 
 python x_bot.py post      x_schedule.json の今日の予定どおりに投稿する(朝=前日21時の図、夕方=当日9時の図)。
                           公開中の図がまだ予定の時刻のものでなければ何もしない(30分後にもう一度呼ばれる)。
-                          投稿 → ページのリンクの返信 → (その回なら)アンケート。投稿済みは state/posted.json に残す
+                          投稿 → (その回なら)アンケート。投稿済みは state/posted.json に残す。
+                          リンクは投稿に入れない(リンク入りは料金が高く表示も減るので、プロフィールに置く)
 python x_bot.py metrics   投稿済みの数字(表示・いいね・ブックマーク・プロフィールのクリック・返信・アンケート結果)を
-                          state/metrics.csv に書き出す(X の非公開の数字は投稿から30日まで)
+                          state/metrics.csv に書き出す(X の非公開の数字は投稿から30日まで)。
+                          もらったリプライ(感想)は state/replies.csv にためる(検索できるのは7日前までなので毎日呼ぶ)
 
 X の鍵は環境変数 X_API_KEY / X_API_SECRET / X_ACCESS_TOKEN / X_ACCESS_SECRET(読み書き権限のアプリ)。
 X_DRY_RUN=1 なら投稿せず、送る中身を表示するだけ。
@@ -24,8 +26,7 @@ API = "https://api.x.com/2/"
 JST = timezone(timedelta(hours=9))
 DRY = os.environ.get("X_DRY_RUN") == "1"
 
-TEMPLATE = "【地上天気図 5枚まとめ】{m}/{d} {h}時({utc}UTC)\n48h前→24h前→最新→24h予想→48h予想\n{note}\n出典：気象庁「地上天気図」を加工して作成\n#天気図 #気象予報士試験"
-LINK_REPLY = f"毎日のまとめ図はこちら（PNG・PDFで保存できます）\n{SITE_URL}"
+TEMPLATE = "【地上天気図 5枚まとめ】{m}/{d} {h}時({utc}UTC)\n48h前→24h前→最新→24h予想→48h予想\n{note}\n感想・見たい図のリクエストは、リプライでどうぞ\n出典：気象庁「地上天気図」を加工して作成\n#天気図 #気象予報士試験"
 
 
 def get(url):
@@ -105,7 +106,6 @@ def post():
     print(key, latest)
     media = [upload(x, get(f"{SITE_URL}{f}?v={v}")) for f in files]
     ids = {"chart": latest, "set": day["set"], "main": tweet(x, {"text": text, "media": {"media_ids": media}})}
-    ids["link"] = tweet(x, {"text": LINK_REPLY, "reply": {"in_reply_to_tweet_id": ids["main"]}})
     poll = day.get("poll")
     if poll and poll["slot"] == slot:
         p = sched["polls"][str(poll["id"])]
@@ -121,7 +121,7 @@ def metrics():
     posted = load("posted.json", {})
     rows = []
     for key, ids in posted.items():
-        for kind in ("main", "link", "poll"):
+        for kind in ("main", "poll"):
             if kind in ids:
                 rows.append({"回": key, "種類": kind, "形": ids.get("set", ""), "id": ids[kind]})
     if not rows:
@@ -159,6 +159,36 @@ def metrics():
         w.writeheader()
         w.writerows(rows)
     print(len(rows), "件を書き出しました")
+    replies(x, posted)
+
+
+def replies(x, posted):
+    """投稿へのリプライ(感想・リクエスト)を replies.csv にためる。"""
+    path = os.path.join(STATE, "replies.csv")
+    old = []
+    if os.path.exists(path):
+        with open(path, encoding="utf-8-sig", newline="") as f:
+            old = list(csv.DictReader(f))
+    seen = {r["id"] for r in old}
+    week = (datetime.now(JST) - timedelta(days=6)).strftime("%Y-%m-%d")
+    for key, ids in posted.items():
+        for kind in ("main", "poll"):
+            if kind not in ids or key[:10] < week:
+                continue
+            r = x.get(API + "tweets/search/recent", params={
+                "query": f"conversation_id:{ids[kind]}", "tweet.fields": "created_at", "max_results": 100})
+            if r.status_code >= 400:
+                print("リプライを取れませんでした", r.status_code, r.text[:200])
+                continue
+            for tw in r.json().get("data", []):
+                if tw["id"] not in seen:
+                    seen.add(tw["id"])
+                    old.append({"回": key, "種類": kind, "id": tw["id"], "日時": tw.get("created_at", ""), "本文": tw["text"]})
+    with open(path, "w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["回", "種類", "id", "日時", "本文"])
+        w.writeheader()
+        w.writerows(old)
+    print("リプライ", len(old), "件")
 
 
 if __name__ == "__main__":
