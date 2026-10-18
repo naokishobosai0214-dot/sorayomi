@@ -48,6 +48,12 @@ jobs:
         run: |
           npx --yes wrangler@4.20.0 pages project create narabete-tenkizu --production-branch=main || true
           npx --yes wrangler@4.20.0 pages deploy site --project-name=narabete-tenkizu --branch=main --commit-dirty=true
+      # 新しい図を公開したら、すぐ X に投稿する(x_bot.yml。投稿済み・予定外の日は何もしない)
+      - name: X に投稿する
+        if: steps.check.outputs.changed == 'true' && inputs.force != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run x_bot.yml -R "${{ github.repository }}" -f mode=post
       # 60日間リポジトリに変更がないと、時刻指定の実行が止まるため、この設定を有効にし直しておく
       - name: 自動実行を止めないようにする
         if: steps.check.outputs.changed == 'true'
