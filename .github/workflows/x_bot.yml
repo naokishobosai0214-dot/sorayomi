@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "post / metrics / dry(投稿せずに中身を表示)"
+        description: "post / metrics / check(鍵の確認) / dry(投稿せずに中身を表示)"
         default: dry
 
 permissions:

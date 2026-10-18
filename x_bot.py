@@ -191,8 +191,15 @@ def replies(x, posted):
     print("リプライ", len(old), "件")
 
 
+def check():
+    """鍵が正しく登録されたかを確かめる(投稿はしない)。自分のアカウント名を表示する。"""
+    r = session().get(API + "users/me")
+    print(r.status_code, r.text[:300])
+    r.raise_for_status()
+
+
 if __name__ == "__main__":
     if not os.environ.get("X_API_KEY") and not DRY:
         print("X の鍵がまだ登録されていません(GitHub の Secrets に X_API_KEY などを入れると動きます)")
         sys.exit(0)
-    {"post": post, "metrics": metrics}[sys.argv[1]]()
+    {"post": post, "metrics": metrics, "check": check}[sys.argv[1]]()
