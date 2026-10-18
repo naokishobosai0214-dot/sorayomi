@@ -132,9 +132,9 @@ PAGE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>空読み｜天気図は、並べると読める</title>
+<title>そら読み｜天気図は、並べると読める</title>
 <meta name="description" content="天気図は「並べて」見ると流れが読める。地上天気図の48時間前・24時間前・最新・24時間予想・48時間予想を時間の流れどおり1枚に並べて、1日2回（9時・21時の図）お届け。高層天気図・数値予報図の並べ図も順次公開します。">
-<meta property="og:title" content="空読み（そらよみ）">
+<meta property="og:title" content="そら読み">
 <meta property="og:description" content="地上天気図 5枚まとめ(最新 __STAMP__)">
 <meta property="og:image" content="latest.jpg?v=__V__">
 <meta name="twitter:card" content="summary_large_image">
@@ -358,7 +358,7 @@ footer .brand{color:var(--fg);font-size:15px;margin-bottom:6px}
     <div class="top">
       <div class="brand">
         <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="7" width="8" height="18" rx="2" fill="#fff" opacity=".6"/><rect x="12" y="7" width="8" height="18" rx="2" fill="#fff"/><rect x="22" y="7" width="8" height="18" rx="2" fill="#fff" opacity=".6"/></svg>
-        <span class="nm">空読み<small>SORAYOMI</small></span>
+        <span class="nm">そら読み<small>SORAYOMI</small></span>
       </div>
       <div class="clock"><div class="ct" id="ck-t">--:--</div><div class="cd" id="ck-d">日本時間</div></div>
     </div>
@@ -467,7 +467,7 @@ footer .brand{color:var(--fg);font-size:15px;margin-bottom:6px}
 <section class="pr">
   <div class="wrap">
     <h2>集めて、並べる。その準備に時間を取られていませんか？</h2>
-    <p class="sub">本当に時間をかけたいのは、天気図を読み解くこと。準備は空読みにまかせてください。</p>
+    <p class="sub">本当に時間をかけたいのは、天気図を読み解くこと。準備はそら読みにまかせてください。</p>
     <div class="pair">
       <div class="card before">
         <h3>これまで</h3>
@@ -478,7 +478,7 @@ footer .brand{color:var(--fg);font-size:15px;margin-bottom:6px}
         </ul>
       </div>
       <div class="card after">
-        <h3>空読みなら</h3>
+        <h3>そら読みなら</h3>
         <ul>
           <li>取り寄せ・並べ替えはおまかせ。ページを開いた瞬間から解析に入れる</li>
           <li>過去 → 最新 → 予想 が左から右へ、矢印つきで1枚に並んでいる</li>
@@ -515,7 +515,7 @@ footer .brand{color:var(--fg);font-size:15px;margin-bottom:6px}
 
 <section class="pr" id="menu">
   <div class="wrap">
-    <h2>空読みのメニュー</h2>
+    <h2>そら読みのメニュー</h2>
     <p class="sub">まずは地上天気図から。もっと読み込みたい方には、高層・数値予報の並べ図を自動でお届けします。</p>
     <div class="plans">
       <div class="card plan free">
@@ -583,8 +583,8 @@ footer .brand{color:var(--fg);font-size:15px;margin-bottom:6px}
 
 <footer>
   <div class="wrap">
-    <div class="brand"><span class="nm">空読み<small>SORAYOMI</small></span></div>
-    出典：気象庁ホームページ（地上天気図）を加工して作成。編集・加工の責任は空読みにあります。天気図は気象庁の発表内容をそのまま並べたもので、独自の予報ではありません。
+    <div class="brand"><span class="nm">そら読み<small>SORAYOMI</small></span></div>
+    出典：気象庁ホームページ（地上天気図）を加工して作成。編集・加工の責任はそら読みにあります。天気図は気象庁の発表内容をそのまま並べたもので、独自の予報ではありません。
   </div>
 </footer>
 </body>

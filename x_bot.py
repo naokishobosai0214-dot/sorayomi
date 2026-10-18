@@ -1,4 +1,4 @@
-"""空読みの X 自動投稿と数字の記録(GitHub Actions の x_bot.yml から動かす)。
+"""そら読みの X 自動投稿と数字の記録(GitHub Actions の x_bot.yml から動かす)。
 
 python x_bot.py post      x_schedule.json の今日の予定どおりに投稿する(朝=前日21時の図、夕方=当日9時の図)。
                           公開中の図がまだ予定の時刻のものでなければ何もしない(30分後にもう一度呼ばれる)。

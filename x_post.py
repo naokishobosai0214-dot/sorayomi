@@ -12,9 +12,9 @@ from PIL import Image, ImageDraw, ImageFont
 import asas_view
 
 # ---- ここを書き換える(決まるまでは仮) ----
-BRAND = "空読み"                 # サービス名(そらよみ)
+BRAND = "そら読み"                 # サービス名(そらよみ)
 LINE_ID = "@421edvfx"            # LINE 公式アカウント「天気図配信」のID
-EDITOR = "空読み"                # 加工・編集の責任者として出典に書く名前
+EDITOR = "そら読み"                # 加工・編集の責任者として出典に書く名前
 # ----------------------------------------
 
 OUT_DIR = r"C:\Users\endo-\Documents\kishobosai\tenkizu"
