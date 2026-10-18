@@ -132,8 +132,8 @@ PAGE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>空読み｜天気図を、時の流れで読む</title>
-<meta name="description" content="地上天気図の48時間前・24時間前・最新・24時間予想・48時間予想を1枚にまとめて、1日2回（9時・21時の図）お届け。1枚ずつ保存して見比べる手間をなくします。">
+<title>空読み｜天気図は、並べると読める</title>
+<meta name="description" content="天気図は「並べて」見ると流れが読める。地上天気図の48時間前・24時間前・最新・24時間予想・48時間予想を時間の流れどおり1枚に並べて、1日2回（9時・21時の図）お届け。高層天気図・数値予報図の並べ図も順次公開します。">
 <meta property="og:title" content="空読み（そらよみ）">
 <meta property="og:description" content="地上天気図 5枚まとめ(最新 __STAMP__)">
 <meta property="og:image" content="latest.jpg?v=__V__">
@@ -258,6 +258,16 @@ h2{font-size:clamp(21px,4vw,28px);text-align:center;margin:0 0 6px}
 .who p{margin:0;color:var(--muted);font-size:15px;text-align:left}
 
 /* 使い方 */
+.road-h{text-align:center;margin:34px 0 14px;font-size:18px}
+.road{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:0;counter-reset:r}
+.road li{position:relative;padding:44px 10px 0;text-align:center}
+.road li::before{counter-increment:r;content:counter(r);position:absolute;top:0;left:50%;transform:translateX(-50%);width:32px;height:32px;border-radius:50%;background:var(--muted);color:#fff;font-weight:bold;line-height:32px;z-index:1}
+.road li::after{content:"";position:absolute;top:15px;left:50%;width:100%;height:3px;background:var(--line)}
+.road li:last-child::after{display:none}
+.road li.done::before{background:var(--now)}
+.road li.now::before{background:var(--accent)}
+.road b{display:block;font-size:16px}
+.road span{display:block;color:var(--muted);font-size:14px}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:s}
 .steps .card{padding:22px;position:relative}
 .steps .card::before{counter-increment:s;content:counter(s);position:absolute;top:-14px;left:18px;width:32px;height:32px;border-radius:50%;background:var(--accent2);color:#fff;font-weight:bold;text-align:center;line-height:32px}
@@ -317,6 +327,8 @@ footer .brand{color:var(--fg);font-size:15px;margin-bottom:6px}
 
 @media (max-width:760px){
   .pair,.who,.steps{grid-template-columns:1fr}
+  .road{grid-template-columns:1fr 1fr;row-gap:22px}
+  .road li:nth-child(2)::after{display:none}
   .steps{gap:26px}
   .clock .ct{font-size:30px}
   .clock .cd{font-size:11px;letter-spacing:.04em}
@@ -352,8 +364,8 @@ footer .brand{color:var(--fg);font-size:15px;margin-bottom:6px}
     </div>
     <div class="hero-body">
       <span class="badge">最新の実況：<b>__STAMP__</b></span>
-      <h1>天気図、もう<br>1枚ずつ並べなくていい。</h1>
-      <p class="lead">地上天気図の 48時間前・24時間前・最新・24時間予想・48時間予想 を、左から右へ時間の流れどおり1枚にまとめて、1日2回お届けします。集めて並べる準備はおまかせ、あなたは解析に集中するだけ。</p>
+      <h1>天気図は、<br>並べると読める。</h1>
+      <p class="lead">1枚だけでは見えない低気圧や前線の動きも、時間の順に並べれば流れとして読めてきます。地上天気図の 48時間前・24時間前・最新・24時間予想・48時間予想 を、左から右へ時間の流れどおり1枚に並べて、1日2回お届けします。高層天気図・数値予報図の並べ図も順次公開していきます。</p>
       <a class="cta" href="#today">今日の天気図を見る</a>
     </div>
   </div>
@@ -419,6 +431,37 @@ footer .brand{color:var(--fg);font-size:15px;margin-bottom:6px}
     <h3>1枚ずつ大きく見る</h3>
     <div class="grid">__LINKS__</div>
   </div></div>
+</section>
+
+<section class="pr" id="kodawari">
+  <div class="wrap">
+    <h2>並べ方へのこだわり</h2>
+    <p class="sub">同じ図でも、並べ方ひとつで読みやすさが変わります。</p>
+    <div class="who">
+      <div class="card">
+        <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="var(--sky3)"/><rect x="10" y="20" width="9" height="16" rx="2" fill="var(--accent)" opacity=".55"/><rect x="23.5" y="18" width="9" height="20" rx="2" fill="var(--now)"/><rect x="37" y="20" width="9" height="16" rx="2" fill="var(--accent)" opacity=".55"/><path d="M12 44h30l-4-3m4 3-4 3" stroke="var(--accent)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>時間の流れどおりに</h3>
+        <p>左に過去、真ん中に最新、右に予想。矢印に沿って目を動かすだけで、低気圧や前線がどこから来て、どこへ向かうのかが追えます。</p>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="var(--sky3)"/><circle cx="28" cy="28" r="13" fill="#fff" stroke="var(--accent)" stroke-width="3"/><path d="M28 20v8l6 4" stroke="var(--accent2)" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+        <h3>起点をそろえる</h3>
+        <p>真ん中の最新の実況は、数値予報の初期値と同じ9時・21時の図。実況と予想を、同じ時刻を起点にそのまま読み比べられます。</p>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="var(--sky3)"/><rect x="16" y="14" width="24" height="28" rx="3" fill="#fff" stroke="var(--accent)" stroke-width="2.4"/><path d="M20 22c4-3 8 3 12 0s6-2 6-2M20 29c4-3 8 3 12 0s6-2 6-2M20 36c4-3 8 3 12 0" stroke="#444" stroke-width="1.6" fill="none"/></svg>
+        <h3>気象庁の図をそのまま</h3>
+        <p>色付けや書き込みはせず、気象庁の白黒の図をそのまま並べています。元の情報を崩さずに、自分の目で解析できます。</p>
+      </div>
+    </div>
+    <h3 class="road-h">これから並べていく図</h3>
+    <ol class="road">
+      <li class="done"><b>地上天気図</b><span>このページで公開中</span></li>
+      <li class="now"><b>高層天気図の実況</b><span>200hPa → 地上。LINEで配信中</span></li>
+      <li class="now"><b>数値予報天気図</b><span>12〜48時間予想。LINEで配信中</span></li>
+      <li><b>解析の補助つき</b><span>準備中</span></li>
+    </ol>
+  </div>
 </section>
 
 <section class="pr">
